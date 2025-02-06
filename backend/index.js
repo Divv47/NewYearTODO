@@ -1,12 +1,12 @@
 const express = require('express')
+const { createTodo, updateTodo } = require("./types");
+const { todo } = require("./db");
+//const cors = require("cors");
 const app = express();
 
 app.use(express.json())
 
-
-
-
-app.post("/todos",function(req,res){
+app.post("/todos",async function(req,res){
     const createPayLoad = req.body;
     const parsePayLoad = createTodo.safeParse(createPayLoad);
     if(!parsePayLoad.success){
@@ -16,13 +16,22 @@ app.post("/todos",function(req,res){
         return;
     }
     //put in MongoDB
+    await todo.create({
+        title:createPayLoad.title,
+        description:createPayLoad.description,
+        completed : false,
+    })
 })
 
 app.get("/todos",function(req,res){
+    const todos = todo.find({
 
+    })
+    console.log(todos);
+    
 })
 
-app.put("/completed",function(req,res){
+app.put("/completed",async function(req,res){
     const updatePayload = req.body;
     const parsePayLoad = updatePayload.safeParse(updatePayload)
     if(!parsePayLoad.success){
@@ -31,5 +40,13 @@ app.put("/completed",function(req,res){
         })
         return;
     }
+    await todo.update({
+        _id : req.body.id
+    },{
+        completed : true
+    })
+    res.json({
+        msg: "todo marked as completed"
+    })
 })
-app.listen()
+app.listen(3000, () => console.log("Server running"));
